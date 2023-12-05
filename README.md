@@ -63,3 +63,37 @@ You can do this either via ssh using your preferred editor or via LuCI under `Sy
 
 8) Restart your router and verify IPv6 is working on your clients.
 
+# Fix loop ipv6 nat
+
+I made one more change to the nat6 script so it won't loop infinitely, e.g. in case there is a problem with my IPv6 WAN connection.
+
+Specifically I replaced this code:
+```
+Wait until IPv6 route is up...
+line=0
+while [ $line -eq 0 ]
+do
+        sleep 5
+        line=`route -A inet6 | grep ::/0 | awk 'END{print NR}'`
+done
+```
+with this code:
+```
+# Wait until IPv6 route is up...
+# Don't loop infinitely, but stop after (delay x limit) seconds
+line=0
+count=1
+delay=5
+limit=24
+while [ $line -eq 0 ]
+do
+    if [ $count -gt $limit ]
+    then
+        exit 1
+    fi
+    sleep $delay
+    count=$((count+1))
+    line=`route -A inet6 | grep ::/0 | awk 'END{print NR}'`
+done
+```
+This should help to free CPU resources in case an IPv6 connection can't be established. My "delay" is 5 seconds because this is the time my router usually takes to get IPv6 up (so the while loop is usually only executed once).
