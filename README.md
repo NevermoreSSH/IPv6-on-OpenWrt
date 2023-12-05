@@ -63,7 +63,7 @@ You can do this either via ssh using your preferred editor or via LuCI under `Sy
 
 8) Restart your router and verify IPv6 is working on your clients.
 
-# Fix loop ipv6 nat
+# Fix loop IPV6-NAT
 
 I made one more change to the nat6 script so it won't loop infinitely, e.g. in case there is a problem with my IPv6 WAN connection.
 
